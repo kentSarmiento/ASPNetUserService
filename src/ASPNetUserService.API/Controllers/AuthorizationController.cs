@@ -72,6 +72,7 @@ namespace ASPNetUserService.API.Controllers
                     Scopes.OpenId,
                     Scopes.Email,
                     Scopes.Profile,
+                    Scopes.OfflineAccess,
                     Scopes.Roles
                 }.Intersect(request.GetScopes()));
 
@@ -80,6 +81,54 @@ namespace ASPNetUserService.API.Controllers
                 //principal.SetResources(await _scopeManager.ListResourcesAsync(scopes).ToListAsync());
                 //principal.SetAudiences("tasklist");
                 principal.SetResources("tasklist");
+
+                foreach (var claim in principal.Claims)
+                {
+                    claim.SetDestinations(GetDestinations(claim, principal));
+                }
+
+                return SignIn(principal, OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+            }
+
+            else if (request.IsRefreshTokenGrantType())
+            {
+                // Retrieve the claims principal stored in the refresh token.
+                var info = await HttpContext.AuthenticateAsync(OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+
+                // Retrieve the user profile corresponding to the refresh token.
+                // Note: if you want to automatically invalidate the refresh token
+                // when the user password/roles change, use the following line instead:
+                // var user = _signInManager.ValidateSecurityStampAsync(info.Principal);
+                //var user = await _userManager.GetUserAsync(info.Principal);
+                var user = await _applicationUsersRepository.GetUserAsync(info.Principal);
+                if (user == null)
+                {
+                    var properties = new AuthenticationProperties(new Dictionary<string, string>
+                    {
+                        [OpenIddictServerAspNetCoreConstants.Properties.Error] = Errors.InvalidGrant,
+                        [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] = "The refresh token is no longer valid."
+                    });
+
+                    return Forbid(properties, OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+                }
+
+                // Ensure the user is still allowed to sign in.
+                //if (!await _signInManager.CanSignInAsync(user))
+                if (!await _applicationUsersRepository.CanSignInAsync(user))
+                {
+                    var properties = new AuthenticationProperties(new Dictionary<string, string>
+                    {
+                        [OpenIddictServerAspNetCoreConstants.Properties.Error] = Errors.InvalidGrant,
+                        [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] = "The user is no longer allowed to sign in."
+                    });
+
+                    return Forbid(properties, OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+                }
+
+                // Create a new ClaimsPrincipal containing the claims that
+                // will be used to create an id_token, a token or a code.
+                //var principal = await _signInManager.CreateUserPrincipalAsync(user);
+                var principal = await _applicationUsersRepository.CreateUserPrincipalAsync(user);
 
                 foreach (var claim in principal.Claims)
                 {

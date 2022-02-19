@@ -34,15 +34,31 @@ namespace ASPNetUserService.TestClient
                 Console.WriteLine("User password: {0}", loginPassword);
             }
 
-            var token = await GetTokenAsync(client, loginEmail, loginPassword);
-            Console.WriteLine("Access token: {0}", token);
+            var tokens = await GetTokenAsync(client, loginEmail, loginPassword);
+            Console.WriteLine();
+            Console.WriteLine("Initial access token: {0}", tokens.AccessToken);
+            Console.WriteLine("Initial refresh token: {0}", tokens.RefreshToken);
             Console.WriteLine();
 
-            var resource = await GetResourceAsync(client, token);
+            var resource = await GetResourceAsync(client, tokens.AccessToken);
             Console.WriteLine("Internal API response: {0}", resource);
             Console.WriteLine();
 
-            var tasklist = await GetTaskListAsync(client, token);
+            var tasklist = await GetTaskListAsync(client, tokens.AccessToken);
+            Console.WriteLine("External Service API response: {0}", tasklist);
+            Console.WriteLine();
+
+            tokens = await RefreshTokensAsync(client, tokens.RefreshToken);
+            Console.WriteLine();
+            Console.WriteLine("New access token: {0}", tokens.AccessToken);
+            Console.WriteLine("New refresh token: {0}", tokens.RefreshToken);
+            Console.WriteLine();
+
+            resource = await GetResourceAsync(client, tokens.AccessToken);
+            Console.WriteLine("Internal API response: {0}", resource);
+            Console.WriteLine();
+
+            tasklist = await GetTaskListAsync(client, tokens.AccessToken);
             Console.WriteLine("External Service API response: {0}", tasklist);
             Console.WriteLine();
         }
@@ -60,14 +76,15 @@ namespace ASPNetUserService.TestClient
             response.EnsureSuccessStatusCode();
         }
 
-        public static async Task<string> GetTokenAsync(HttpClient client, string email, string password)
+        public static async Task<(string AccessToken, string RefreshToken)> GetTokenAsync(HttpClient client, string email, string password)
         {
             var request = new HttpRequestMessage(HttpMethod.Post, "https://localhost:5001/connect/token");
             request.Content = new FormUrlEncodedContent(new Dictionary<string, string>
             {
                 ["grant_type"] = "password",
                 ["username"] = email,
-                ["password"] = password
+                ["password"] = password,
+                ["scope"] = "offline_access"
             });
 
             var response = await client.SendAsync(request, HttpCompletionOption.ResponseContentRead);
@@ -79,7 +96,28 @@ namespace ASPNetUserService.TestClient
                 throw new InvalidOperationException("An error occurred while retrieving an access token.");
             }
 
-            return payload.AccessToken;
+            return (payload.AccessToken, payload.RefreshToken);
+        }
+
+        public static async Task<(string AccessToken, string RefreshToken)> RefreshTokensAsync(HttpClient client, string refreshToken)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Post, "https://localhost:5001/connect/token");
+            request.Content = new FormUrlEncodedContent(new Dictionary<string, string>
+            {
+                ["grant_type"] = "refresh_token",
+                ["refresh_token"] = refreshToken
+            });
+
+            var response = await client.SendAsync(request, HttpCompletionOption.ResponseContentRead);
+
+            var payload = await response.Content.ReadFromJsonAsync<OpenIddictResponse>();
+
+            if (!string.IsNullOrEmpty(payload.Error))
+            {
+                throw new InvalidOperationException("An error occurred while retrieving an access token.");
+            }
+
+            return (payload.AccessToken, payload.RefreshToken);
         }
 
         public static async Task<string> GetResourceAsync(HttpClient client, string token)

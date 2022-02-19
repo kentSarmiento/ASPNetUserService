@@ -46,6 +46,7 @@ namespace ASPNetUserService.Infrastructure
                 options.ClaimsIdentity.UserNameClaimType = Claims.Name;
                 options.ClaimsIdentity.UserIdClaimType = Claims.Subject;
                 options.ClaimsIdentity.RoleClaimType = Claims.Role;
+                options.ClaimsIdentity.EmailClaimType = Claims.Email;
             });
 
             // OpenIddict offers native integration with Quartz.NET to perform scheduled tasks
@@ -89,8 +90,9 @@ namespace ASPNetUserService.Infrastructure
                     // Enable the token endpoint.
                     //options.SetTokenEndpointUris("/connect/token");
 
-                    // Enable the password flow.
-                    options.AllowPasswordFlow();
+                    // Enable the password flow, refresh token flow.
+                    options.AllowPasswordFlow()
+                           .AllowRefreshTokenFlow();
 
                     // Accept anonymous clients (i.e clients that don't send a client_id).
                     options.AcceptAnonymousClients();

@@ -14,6 +14,9 @@ namespace ASPNetUserService.Domain.Interfaces
         public Task<ApplicationUser> CreateAsync(ApplicationUser user);
 
         public Task<bool> CheckPasswordSignInAsync(ApplicationUser user, string password);
+        public Task<bool> CanSignInAsync(ApplicationUser user);
+
+        public Task<ApplicationUser> GetUserAsync(ClaimsPrincipal principal);
         public Task<ClaimsPrincipal> CreateUserPrincipalAsync(ApplicationUser user);
 
     }

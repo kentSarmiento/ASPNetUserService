@@ -65,6 +65,30 @@ namespace ASPNetUserService.Infrastructure.Repositories
             return result.Succeeded;
         }
 
+        public async Task<bool> CanSignInAsync(ApplicationUser user)
+        {
+            var userIdentity = await _userManager.FindByNameAsync(user.UserName);
+
+            var result = await _signInManager.CanSignInAsync(userIdentity);
+            return result;
+        }
+
+        public async Task<ApplicationUser> GetUserAsync(ClaimsPrincipal principal)
+        {
+            var user = await _userManager.GetUserAsync(principal);
+            if (user != null)
+            {
+                var userIdentity = new ApplicationUser
+                {
+                    UserName = user.UserName,
+                    Email = user.Email
+                };
+                return userIdentity;
+            }
+
+            return null;
+        }
+
         public async Task<ClaimsPrincipal> CreateUserPrincipalAsync(ApplicationUser user)
         {
             var userIdentity = await _userManager.FindByNameAsync(user.UserName);
@@ -72,6 +96,5 @@ namespace ASPNetUserService.Infrastructure.Repositories
             var principal = await _signInManager.CreateUserPrincipalAsync(userIdentity);
             return principal;
         }
-
     }
 }
