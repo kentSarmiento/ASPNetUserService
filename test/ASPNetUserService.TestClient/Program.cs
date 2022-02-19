@@ -48,6 +48,17 @@ namespace ASPNetUserService.TestClient
             Console.WriteLine("External Service API response: {0}", tasklist);
             Console.WriteLine();
 
+            // Test multiple use of access and refresh token
+            for (int i=0; i<100; i++)
+            {
+                tokens = await RefreshTokensAsync(client, tokens.RefreshToken);
+
+                resource = await GetResourceAsync(client, tokens.AccessToken);
+                tasklist = await GetTaskListAsync(client, tokens.AccessToken);
+
+                System.Threading.Thread.Sleep(500);
+            }
+
             tokens = await RefreshTokensAsync(client, tokens.RefreshToken);
             Console.WriteLine();
             Console.WriteLine("New access token: {0}", tokens.AccessToken);
