@@ -12,7 +12,7 @@ namespace ASPNetUserService.API.Controllers
         [HttpGet("message")]
         public IActionResult GetMessage()
         {
-            return Content($"User has been successfully authenticated.");
+            return Content($"{User.Identity.Name} has been successfully authenticated.");
         }
     }
 }
