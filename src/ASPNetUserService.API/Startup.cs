@@ -19,6 +19,10 @@ namespace ASPNetUserService.API
         {
             services.AddCors();
             services.AddControllers();
+
+            // Register the worker responsible of seeding the database with the sample clients.
+            // Note: in a real world application, this step should be part of a setup script.
+            services.AddHostedService<Worker>();
         }
 
         // ConfigureContainer is where you can register things directly

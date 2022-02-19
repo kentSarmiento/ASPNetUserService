@@ -6,6 +6,7 @@ using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 using Quartz;
 using static OpenIddict.Abstractions.OpenIddictConstants;
 
@@ -13,6 +14,8 @@ namespace ASPNetUserService.Infrastructure
 {
     public class InfrastructureModule : Module
     {
+        //private readonly string ENCRYPTION_KEY = "Q8R9TBUCVEXFYG2J3K4N6P7Q9SATBVDWEXGZH2J4M5N=";
+
         protected override void Load(ContainerBuilder builder)
         {
             var services = new ServiceCollection();
@@ -74,14 +77,33 @@ namespace ASPNetUserService.Infrastructure
                 // Register the OpenIddict server components.
                 .AddServer(options =>
                 {
+                    // Enable the token, authorization, and introspection endpoints.
+                    //options.SetTokenEndpointUris("/connect/token")
+                    //       .SetAuthorizationEndpointUris("/connect/authorize")
+                    //       .SetIntrospectionEndpointUris("/connect/introspect");
+
+                    // Enable the token, and introspection endpoints.
+                    options.SetTokenEndpointUris("/connect/token")
+                           .SetIntrospectionEndpointUris("/connect/introspect");
+
                     // Enable the token endpoint.
-                    options.SetTokenEndpointUris("/connect/token");
+                    //options.SetTokenEndpointUris("/connect/token");
 
                     // Enable the password flow.
                     options.AllowPasswordFlow();
 
                     // Accept anonymous clients (i.e clients that don't send a client_id).
                     options.AcceptAnonymousClients();
+
+                    // Register the encryption credentials. This sample uses a symmetric
+                    // encryption key that is shared between the server and the Api2 sample
+                    // (that performs local token validation instead of using introspection).
+                    //
+                    // Note: in a real world application, this encryption key should be
+                    // stored in a safe place (e.g in Azure KeyVault, stored as a secret).
+                    //options.AddEncryptionKey(new SymmetricSecurityKey(
+                    //    Convert.FromBase64String(ENCRYPTION_KEY)));
+                    //options.DisableAccessTokenEncryption();
 
                     // Register the signing and encryption credentials.
                     options.AddDevelopmentEncryptionCertificate()

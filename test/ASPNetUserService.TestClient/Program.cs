@@ -15,20 +15,36 @@ namespace ASPNetUserService.TestClient
         {
             using var client = new HttpClient();
 
-            string email = "kentsarmiento@gmail.com", password = "P@ssw0rd1234";
-            await CreateAccountAsync(client, email, password);
+            const string registeredEmail = "kentsarmiento@gmail.com", registeredPassword = "P@ssw0rd1234";
+            await CreateAccountAsync(client, registeredEmail, registeredPassword);
 
-            Console.Write("Input username for login: ");
-            email = Console.ReadLine();
-            Console.Write("Input password for login: ");
-            password = Console.ReadLine();
-            var token = await GetTokenAsync(client, email, password);
+            Console.Write("Input login: ");
+            var loginEmail = Console.ReadLine();
+            if (string.IsNullOrEmpty(loginEmail))
+            {
+                loginEmail = registeredEmail;
+                Console.WriteLine("User login: {0}", loginEmail);
+            }
 
+            Console.Write("Input password: ");
+            var loginPassword = Console.ReadLine();
+            if (string.IsNullOrEmpty(loginPassword))
+            {
+                loginPassword = registeredPassword;
+                Console.WriteLine("User password: {0}", loginPassword);
+            }
+
+            var token = await GetTokenAsync(client, loginEmail, loginPassword);
             Console.WriteLine("Access token: {0}", token);
             Console.WriteLine();
-            var resource = await GetResourceAsync(client, token);
 
-            Console.WriteLine("API response: {0}", resource);
+            var resource = await GetResourceAsync(client, token);
+            Console.WriteLine("Internal API response: {0}", resource);
+            Console.WriteLine();
+
+            var tasklist = await GetTaskListAsync(client, token);
+            Console.WriteLine("External Service API response: {0}", tasklist);
+            Console.WriteLine();
         }
 
         public static async Task CreateAccountAsync(HttpClient client, string email, string password)
@@ -69,6 +85,17 @@ namespace ASPNetUserService.TestClient
         public static async Task<string> GetResourceAsync(HttpClient client, string token)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, "https://localhost:5001/api/message");
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var response = await client.SendAsync(request, HttpCompletionOption.ResponseContentRead);
+            response.EnsureSuccessStatusCode();
+
+            return await response.Content.ReadAsStringAsync();
+        }
+
+        public static async Task<string> GetTaskListAsync(HttpClient client, string token)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, "https://localhost:6001/api/todoitems");
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
             var response = await client.SendAsync(request, HttpCompletionOption.ResponseContentRead);

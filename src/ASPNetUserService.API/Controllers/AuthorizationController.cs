@@ -75,6 +75,12 @@ namespace ASPNetUserService.API.Controllers
                     Scopes.Roles
                 }.Intersect(request.GetScopes()));
 
+                // Set the list of scopes granted to the client application.
+                //var scopes = request.GetScopes();
+                //principal.SetResources(await _scopeManager.ListResourcesAsync(scopes).ToListAsync());
+                //principal.SetAudiences("tasklist");
+                principal.SetResources("tasklist");
+
                 foreach (var claim in principal.Claims)
                 {
                     claim.SetDestinations(GetDestinations(claim, principal));
