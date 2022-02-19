@@ -15,23 +15,25 @@ namespace ASPNetUserService.TestClient
         {
             using var client = new HttpClient();
 
-            const string email = "bob@le-magnifique.com", password = "}s>EWG@f4g;_v7nB";
-
+            string email = "kentsarmiento@gmail.com", password = "P@ssw0rd1234";
             await CreateAccountAsync(client, email, password);
 
+            Console.Write("Input username for login: ");
+            email = Console.ReadLine();
+            Console.Write("Input password for login: ");
+            password = Console.ReadLine();
             var token = await GetTokenAsync(client, email, password);
+
             Console.WriteLine("Access token: {0}", token);
             Console.WriteLine();
-
             var resource = await GetResourceAsync(client, token);
-            Console.WriteLine("API response: {0}", resource);
 
-            Console.ReadLine();
+            Console.WriteLine("API response: {0}", resource);
         }
 
         public static async Task CreateAccountAsync(HttpClient client, string email, string password)
         {
-            var response = await client.PostAsJsonAsync("https://localhost:5001/Account/Register", new { email, password });
+            var response = await client.PostAsJsonAsync("https://localhost:5001/api/account/register", new { email, password });
 
             // Ignore 409 responses, as they indicate that the account already exists.
             if (response.StatusCode == HttpStatusCode.Conflict)

@@ -1,81 +1,48 @@
 ﻿using System.Threading.Tasks;
-using ASPNetUserService.API.Models;
-using ASPNetUserService.API.ViewModels.Account;
+using ASPNetUserService.API.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using ASPNetUserService.Domain.Interfaces;
+using ASPNetUserService.Domain.Entities;
 
 namespace ASPNetUserService.API.Controllers
 {
+    [Route("api/account")]
+    [ApiController]
     [Authorize]
-    [Route("Account")]
     public class AccountController : Controller
     {
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly ApplicationDbContext _applicationDbContext;
-        private static bool _databaseChecked;
+        private readonly IApplicationUsersRepository _applicationUsersRepository;
 
         public AccountController(
-            UserManager<ApplicationUser> userManager,
-            ApplicationDbContext applicationDbContext)
+            IApplicationUsersRepository applicationUsersRepository)
         {
-            _userManager = userManager;
-            _applicationDbContext = applicationDbContext;
+            _applicationUsersRepository = applicationUsersRepository;
         }
 
-        //
-        // POST: /Account/Register
         [HttpPost("register")]
         [AllowAnonymous]
-        public async Task<IActionResult> Register([FromBody] RegisterViewModel model)
+        public async Task<IActionResult> Register([FromBody] UserRegistrationDTO userRegistration)
         {
-            EnsureDatabaseCreated(_applicationDbContext);
-            if (ModelState.IsValid)
+            var user = await _applicationUsersRepository.FindByNameAsync(userRegistration.Email);
+            if (user != null)
             {
-                var user = await _userManager.FindByNameAsync(model.Email);
-                if (user != null)
-                {
-                    return StatusCode(StatusCodes.Status409Conflict);
-                }
-
-                user = new ApplicationUser { UserName = model.Email, Email = model.Email };
-                var result = await _userManager.CreateAsync(user, model.Password);
-                if (result.Succeeded)
-                {
-                    return Ok();
-                }
-                AddErrors(result);
+                return StatusCode(StatusCodes.Status409Conflict);
             }
 
-            // If we got this far, something failed.
-            return BadRequest(ModelState);
-        }
-
-        #region Helpers
-
-        // The following code creates the database and schema if they don't exist.
-        // This is a temporary workaround since deploying database through EF migrations is
-        // not yet supported in this release.
-        // Please see this http://go.microsoft.com/fwlink/?LinkID=615859 for more information on how to do deploy the database
-        // when publishing your application.
-        private static void EnsureDatabaseCreated(ApplicationDbContext context)
-        {
-            if (!_databaseChecked)
+            user = new ApplicationUser {
+                UserName = userRegistration.Email,
+                Email = userRegistration.Email,
+                Password = userRegistration.Password
+            };
+            var result = await _applicationUsersRepository.CreateAsync(user);
+            if (result == null)
             {
-                _databaseChecked = true;
-                context.Database.EnsureCreated();
+                return BadRequest();
             }
-        }
 
-        private void AddErrors(IdentityResult result)
-        {
-            foreach (var error in result.Errors)
-            {
-                ModelState.AddModelError(string.Empty, error.Description);
-            }
+            return Ok();
         }
-
-        #endregion
     }
 }

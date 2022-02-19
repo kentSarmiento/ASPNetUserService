@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace ASPNetUserService.API.ViewModels.Account
+namespace ASPNetUserService.API.DTOs
 {
-    public class RegisterViewModel
+    public class UserRegistrationDTO
     {
         [Required]
         [EmailAddress]

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-namespace ASPNetUserService.API.Models
+namespace ASPNetUserService.Infrastructure.Repositories
 {
     // Add profile data for application users by adding properties to the ApplicationUser class
-    public class ApplicationUser : IdentityUser { }
+    public class AppUserIdentity : IdentityUser { }
 }

@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-namespace ASPNetUserService.API.Models
+namespace ASPNetUserService.Infrastructure.Repositories
 {
-    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
+    public class ApplicationDbContext : IdentityDbContext<AppUserIdentity>
     {
         public ApplicationDbContext(DbContextOptions options)
             : base(options) { }

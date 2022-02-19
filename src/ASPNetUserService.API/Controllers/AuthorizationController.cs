@@ -9,10 +9,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using ASPNetUserService.API.Models;
+using ASPNetUserService.Domain.Interfaces;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using OpenIddict.Abstractions;
 using OpenIddict.Server.AspNetCore;
@@ -22,15 +21,12 @@ namespace ASPNetUserService.API.Controllers
 {
     public class AuthorizationController : Controller
     {
-        private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IApplicationUsersRepository _applicationUsersRepository;
 
         public AuthorizationController(
-            SignInManager<ApplicationUser> signInManager,
-            UserManager<ApplicationUser> userManager)
+            IApplicationUsersRepository applicationUsersRepository)
         {
-            _signInManager = signInManager;
-            _userManager = userManager;
+            _applicationUsersRepository = applicationUsersRepository;
         }
 
         [HttpPost("~/connect/token"), Produces("application/json")]
@@ -39,7 +35,7 @@ namespace ASPNetUserService.API.Controllers
             var request = HttpContext.GetOpenIddictServerRequest();
             if (request.IsPasswordGrantType())
             {
-                var user = await _userManager.FindByNameAsync(request.Username);
+                var user = await _applicationUsersRepository.FindByNameAsync(request.Username);
                 if (user == null)
                 {
                     var properties = new AuthenticationProperties(new Dictionary<string, string>
@@ -53,8 +49,8 @@ namespace ASPNetUserService.API.Controllers
                 }
 
                 // Validate the username/password parameters and ensure the account is not locked out.
-                var result = await _signInManager.CheckPasswordSignInAsync(user, request.Password, lockoutOnFailure: true);
-                if (!result.Succeeded)
+                var result = await _applicationUsersRepository.CheckPasswordSignInAsync(user, request.Password);
+                if (!result)
                 {
                     var properties = new AuthenticationProperties(new Dictionary<string, string>
                     {
@@ -68,7 +64,7 @@ namespace ASPNetUserService.API.Controllers
 
                 // Create a new ClaimsPrincipal containing the claims that
                 // will be used to create an id_token, a token or a code.
-                var principal = await _signInManager.CreateUserPrincipalAsync(user);
+                var principal = await _applicationUsersRepository.CreateUserPrincipalAsync(user);
 
                 // Set the list of scopes granted to the client application.
                 principal.SetScopes(new[]
