@@ -6,7 +6,9 @@ namespace ASPNetUserService.Infrastructure.Repositories
     public class ApplicationDbContext : IdentityDbContext<AppUserIdentity>
     {
         public ApplicationDbContext(DbContextOptions options)
-            : base(options) { }
+            : base(options)
+        {
+        }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

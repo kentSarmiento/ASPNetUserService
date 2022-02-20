@@ -3,5 +3,7 @@
 namespace ASPNetUserService.Infrastructure.Repositories
 {
     // Add profile data for application users by adding properties to the ApplicationUser class
-    public class AppUserIdentity : IdentityUser { }
+    public class AppUserIdentity : IdentityUser
+    {
+    }
 }

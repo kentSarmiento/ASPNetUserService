@@ -14,8 +14,7 @@ namespace ASPNetUserService.Infrastructure
 {
     public class InfrastructureModule : Module
     {
-        //private readonly string ENCRYPTION_KEY = "Q8R9TBUCVEXFYG2J3K4N6P7Q9SATBVDWEXGZH2J4M5N=";
-
+        // private const string EncryptionKey = "Q8R9TBUCVEXFYG2J3K4N6P7Q9SATBVDWEXGZH2J4M5N=";
         protected override void Load(ContainerBuilder builder)
         {
             var services = new ServiceCollection();
@@ -79,16 +78,16 @@ namespace ASPNetUserService.Infrastructure
                 .AddServer(options =>
                 {
                     // Enable the token, authorization, and introspection endpoints.
-                    //options.SetTokenEndpointUris("/connect/token")
-                    //       .SetAuthorizationEndpointUris("/connect/authorize")
-                    //       .SetIntrospectionEndpointUris("/connect/introspect");
+                    // options.SetTokenEndpointUris("/connect/token")
+                    //        .SetAuthorizationEndpointUris("/connect/authorize")
+                    //        .SetIntrospectionEndpointUris("/connect/introspect");
 
                     // Enable the token, and introspection endpoints.
                     options.SetTokenEndpointUris("/connect/token")
                            .SetIntrospectionEndpointUris("/connect/introspect");
 
                     // Enable the token endpoint.
-                    //options.SetTokenEndpointUris("/connect/token");
+                    // options.SetTokenEndpointUris("/connect/token");
 
                     // Enable the password flow, refresh token flow.
                     options.AllowPasswordFlow()
@@ -103,9 +102,9 @@ namespace ASPNetUserService.Infrastructure
                     //
                     // Note: in a real world application, this encryption key should be
                     // stored in a safe place (e.g in Azure KeyVault, stored as a secret).
-                    //options.AddEncryptionKey(new SymmetricSecurityKey(
-                    //    Convert.FromBase64String(ENCRYPTION_KEY)));
-                    //options.DisableAccessTokenEncryption();
+                    // options.AddEncryptionKey(new SymmetricSecurityKey(
+                    //     Convert.FromBase64String(EncryptionKey)));
+                    // options.DisableAccessTokenEncryption();
 
                     // Register the signing and encryption credentials.
                     options.AddDevelopmentEncryptionCertificate()
