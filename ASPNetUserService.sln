@@ -16,6 +16,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ASPNetUserService.UnitTest", "test\ASPNetUserService.UnitTest\ASPNetUserService.UnitTest.csproj", "{2F24EB91-F22A-42CD-907C-88AF93F30FE0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -38,6 +40,10 @@ Global
 		{FDE3B15A-C543-440F-BF22-FD9EF264D18F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FDE3B15A-C543-440F-BF22-FD9EF264D18F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FDE3B15A-C543-440F-BF22-FD9EF264D18F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2F24EB91-F22A-42CD-907C-88AF93F30FE0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2F24EB91-F22A-42CD-907C-88AF93F30FE0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2F24EB91-F22A-42CD-907C-88AF93F30FE0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2F24EB91-F22A-42CD-907C-88AF93F30FE0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
