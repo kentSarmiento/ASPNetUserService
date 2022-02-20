@@ -29,7 +29,8 @@ namespace ASPNetUserService.API.Controllers
             _applicationUsersRepository = applicationUsersRepository;
         }
 
-        [HttpPost("~/connect/token"), Produces("application/json")]
+        [HttpPost("~/connect/token")]
+        [Produces("application/json")]
         public async Task<IActionResult> Exchange()
         {
             var request = HttpContext.GetOpenIddictServerRequest();
@@ -42,7 +43,7 @@ namespace ASPNetUserService.API.Controllers
                     {
                         [OpenIddictServerAspNetCoreConstants.Properties.Error] = Errors.InvalidGrant,
                         [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] =
-                            "The username/password couple is invalid."
+                            "The username/password couple is invalid.",
                     });
 
                     return Forbid(properties, OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
@@ -56,7 +57,7 @@ namespace ASPNetUserService.API.Controllers
                     {
                         [OpenIddictServerAspNetCoreConstants.Properties.Error] = Errors.InvalidGrant,
                         [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] =
-                            "The username/password couple is invalid."
+                            "The username/password couple is invalid.",
                     });
 
                     return Forbid(properties, OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
@@ -73,13 +74,13 @@ namespace ASPNetUserService.API.Controllers
                     Scopes.Email,
                     Scopes.Profile,
                     Scopes.OfflineAccess,
-                    Scopes.Roles
+                    Scopes.Roles,
                 }.Intersect(request.GetScopes()));
 
                 // Set the list of scopes granted to the client application.
-                //var scopes = request.GetScopes();
-                //principal.SetResources(await _scopeManager.ListResourcesAsync(scopes).ToListAsync());
-                //principal.SetAudiences("tasklist");
+                // var scopes = request.GetScopes();
+                // principal.SetResources(await _scopeManager.ListResourcesAsync(scopes).ToListAsync());
+                // principal.SetAudiences("tasklist");
                 principal.SetResources("tasklist");
 
                 foreach (var claim in principal.Claims)
@@ -89,7 +90,6 @@ namespace ASPNetUserService.API.Controllers
 
                 return SignIn(principal, OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
             }
-
             else if (request.IsRefreshTokenGrantType())
             {
                 // Retrieve the claims principal stored in the refresh token.
@@ -99,27 +99,27 @@ namespace ASPNetUserService.API.Controllers
                 // Note: if you want to automatically invalidate the refresh token
                 // when the user password/roles change, use the following line instead:
                 // var user = _signInManager.ValidateSecurityStampAsync(info.Principal);
-                //var user = await _userManager.GetUserAsync(info.Principal);
+                // var user = await _userManager.GetUserAsync(info.Principal);
                 var user = await _applicationUsersRepository.GetUserAsync(info.Principal);
                 if (user == null)
                 {
                     var properties = new AuthenticationProperties(new Dictionary<string, string>
                     {
                         [OpenIddictServerAspNetCoreConstants.Properties.Error] = Errors.InvalidGrant,
-                        [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] = "The refresh token is no longer valid."
+                        [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] = "The refresh token is no longer valid.",
                     });
 
                     return Forbid(properties, OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
                 }
 
                 // Ensure the user is still allowed to sign in.
-                //if (!await _signInManager.CanSignInAsync(user))
+                // if (!await _signInManager.CanSignInAsync(user))
                 if (!await _applicationUsersRepository.CanSignInAsync(user))
                 {
                     var properties = new AuthenticationProperties(new Dictionary<string, string>
                     {
                         [OpenIddictServerAspNetCoreConstants.Properties.Error] = Errors.InvalidGrant,
-                        [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] = "The user is no longer allowed to sign in."
+                        [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] = "The user is no longer allowed to sign in.",
                     });
 
                     return Forbid(properties, OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
@@ -127,7 +127,7 @@ namespace ASPNetUserService.API.Controllers
 
                 // Create a new ClaimsPrincipal containing the claims that
                 // will be used to create an id_token, a token or a code.
-                //var principal = await _signInManager.CreateUserPrincipalAsync(user);
+                // var principal = await _signInManager.CreateUserPrincipalAsync(user);
                 var principal = await _applicationUsersRepository.CreateUserPrincipalAsync(user);
 
                 foreach (var claim in principal.Claims)
@@ -146,14 +146,15 @@ namespace ASPNetUserService.API.Controllers
             // Note: by default, claims are NOT automatically included in the access and identity tokens.
             // To allow OpenIddict to serialize them, you must attach them a destination, that specifies
             // whether they should be included in access tokens, in identity tokens or in both.
-
             switch (claim.Type)
             {
                 case Claims.Name:
                     yield return Destinations.AccessToken;
 
                     if (principal.HasScope(Scopes.Profile))
+                    {
                         yield return Destinations.IdentityToken;
+                    }
 
                     yield break;
 
@@ -161,7 +162,9 @@ namespace ASPNetUserService.API.Controllers
                     yield return Destinations.AccessToken;
 
                     if (principal.HasScope(Scopes.Email))
+                    {
                         yield return Destinations.IdentityToken;
+                    }
 
                     yield break;
 
@@ -169,7 +172,9 @@ namespace ASPNetUserService.API.Controllers
                     yield return Destinations.AccessToken;
 
                     if (principal.HasScope(Scopes.Roles))
+                    {
                         yield return Destinations.IdentityToken;
+                    }
 
                     yield break;
 

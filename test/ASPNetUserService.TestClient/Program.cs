@@ -11,13 +11,13 @@ namespace ASPNetUserService.TestClient
 {
     public class Program
     {
-        struct Tokens
-        {
-            public string AccessToken;
-            public string RefreshToken;
-        }
+        private const string AuthServiceHost = "https://localhost:5001";
+        private const string TaskServiceHost = "https://localhost:6001";
 
-        enum Options
+        private const string DefaultLogin = "kentsarmiento@gmail.com";
+        private const string DefaultPassword = "P@ssw0rd1234";
+
+        private enum Options
         {
             Default = 0,
             Register,
@@ -25,14 +25,8 @@ namespace ASPNetUserService.TestClient
             Display,
             Refresh,
             Test,
-            Quit
-        };
-
-        private static readonly string AUTH_SERVICE = "https://localhost:5001";
-        private static readonly string TASK_SERVICE = "https://localhost:6001";
-
-        private static readonly string DEFAULT_LOGIN = "kentsarmiento@gmail.com";
-        private static readonly string DEFAULT_PASSWORD = "P@ssw0rd1234";
+            Quit,
+        }
 
         public static async Task Main(string[] args)
         {
@@ -89,11 +83,13 @@ namespace ASPNetUserService.TestClient
                             Console.WriteLine();
                             Console.WriteLine("External Service API response: {0}", tasklist);
                         }
+
                         break;
 
                     default:
                         break;
                 }
+
                 Console.WriteLine();
             }
         }
@@ -104,7 +100,7 @@ namespace ASPNetUserService.TestClient
             var email = Console.ReadLine();
             if (string.IsNullOrEmpty(email))
             {
-                email = DEFAULT_LOGIN;
+                email = DefaultLogin;
                 Console.WriteLine("User login: {0}", email);
             }
 
@@ -112,17 +108,16 @@ namespace ASPNetUserService.TestClient
             var password = Console.ReadLine();
             if (string.IsNullOrEmpty(password))
             {
-                password = DEFAULT_PASSWORD;
+                password = DefaultPassword;
                 Console.WriteLine("User password: {0}", password);
             }
 
             return (email, password);
         }
 
-
         private static async Task CreateAccountAsync(HttpClient client, string email, string password)
         {
-            var response = await client.PostAsJsonAsync($"{AUTH_SERVICE}/api/account/register", new { email, password });
+            var response = await client.PostAsJsonAsync($"{AuthServiceHost}/api/account/register", new { email, password });
 
             // Ignore 409 responses, as they indicate that the account already exists.
             if (response.StatusCode == HttpStatusCode.Conflict)
@@ -135,13 +130,13 @@ namespace ASPNetUserService.TestClient
 
         private static async Task<Tokens> GetTokenAsync(HttpClient client, string email, string password)
         {
-            var request = new HttpRequestMessage(HttpMethod.Post, $"{AUTH_SERVICE}/connect/token");
+            var request = new HttpRequestMessage(HttpMethod.Post, $"{AuthServiceHost}/connect/token");
             request.Content = new FormUrlEncodedContent(new Dictionary<string, string>
             {
                 ["grant_type"] = "password",
                 ["username"] = email,
                 ["password"] = password,
-                ["scope"] = "offline_access"
+                ["scope"] = "offline_access",
             });
 
             var response = await client.SendAsync(request, HttpCompletionOption.ResponseContentRead);
@@ -153,16 +148,16 @@ namespace ASPNetUserService.TestClient
                 throw new InvalidOperationException("An error occurred while retrieving an access token.");
             }
 
-            return new Tokens {AccessToken = payload.AccessToken, RefreshToken = payload.RefreshToken};
+            return new Tokens { AccessToken = payload.AccessToken, RefreshToken = payload.RefreshToken };
         }
 
         private static async Task<Tokens> RefreshTokensAsync(HttpClient client, Tokens? tokens)
         {
-            var request = new HttpRequestMessage(HttpMethod.Post, $"{AUTH_SERVICE}/connect/token");
+            var request = new HttpRequestMessage(HttpMethod.Post, $"{AuthServiceHost}/connect/token");
             request.Content = new FormUrlEncodedContent(new Dictionary<string, string>
             {
                 ["grant_type"] = "refresh_token",
-                ["refresh_token"] = tokens?.RefreshToken 
+                ["refresh_token"] = tokens?.RefreshToken,
             });
 
             var response = await client.SendAsync(request, HttpCompletionOption.ResponseContentRead);
@@ -174,12 +169,12 @@ namespace ASPNetUserService.TestClient
                 throw new InvalidOperationException("An error occurred while retrieving an access token.");
             }
 
-            return new Tokens {AccessToken = payload.AccessToken, RefreshToken = payload.RefreshToken};
+            return new Tokens { AccessToken = payload.AccessToken, RefreshToken = payload.RefreshToken };
         }
 
         private static async Task<string> GetResourceAsync(HttpClient client, Tokens? tokens)
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, $"{AUTH_SERVICE}/api/message");
+            var request = new HttpRequestMessage(HttpMethod.Get, $"{AuthServiceHost}/api/message");
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", tokens?.AccessToken);
 
             var response = await client.SendAsync(request, HttpCompletionOption.ResponseContentRead);
@@ -190,13 +185,19 @@ namespace ASPNetUserService.TestClient
 
         private static async Task<string> GetTaskListAsync(HttpClient client, Tokens? tokens)
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, $"{TASK_SERVICE}/api/todoitems");
+            var request = new HttpRequestMessage(HttpMethod.Get, $"{TaskServiceHost}/api/todoitems");
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", tokens?.AccessToken);
 
             var response = await client.SendAsync(request, HttpCompletionOption.ResponseContentRead);
             response.EnsureSuccessStatusCode();
 
             return await response.Content.ReadAsStringAsync();
+        }
+
+        private struct Tokens
+        {
+            public string AccessToken;
+            public string RefreshToken;
         }
     }
 }

@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Text;
+﻿using System.Security.Claims;
 using System.Threading.Tasks;
-using ASPNetUserService.Domain.Interfaces;
 using ASPNetUserService.Domain.Entities;
+using ASPNetUserService.Domain.Interfaces;
 using Microsoft.AspNetCore.Identity;
 
 namespace ASPNetUserService.Infrastructure.Repositories
@@ -31,7 +27,7 @@ namespace ASPNetUserService.Infrastructure.Repositories
                 var user = new ApplicationUser
                 {
                     UserName = userIdentity.UserName,
-                    Email = userIdentity.Email
+                    Email = userIdentity.Email,
                 };
 
                 return user;
@@ -45,7 +41,7 @@ namespace ASPNetUserService.Infrastructure.Repositories
             var userIdentity = new AppUserIdentity
             {
                 UserName = user.UserName,
-                Email = user.Email
+                Email = user.Email,
             };
 
             var result = await _userManager.CreateAsync(userIdentity, user.Password);
@@ -81,7 +77,7 @@ namespace ASPNetUserService.Infrastructure.Repositories
                 var userIdentity = new ApplicationUser
                 {
                     UserName = user.UserName,
-                    Email = user.Email
+                    Email = user.Email,
                 };
                 return userIdentity;
             }

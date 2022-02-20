@@ -53,7 +53,6 @@ namespace ASPNetUserService.API
             {
                 options.MapControllers();
             });
-
         }
     }
 }

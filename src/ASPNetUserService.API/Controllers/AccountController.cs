@@ -1,10 +1,10 @@
 ﻿using System.Threading.Tasks;
 using ASPNetUserService.API.DTOs;
+using ASPNetUserService.Domain.Entities;
+using ASPNetUserService.Domain.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using ASPNetUserService.Domain.Interfaces;
-using ASPNetUserService.Domain.Entities;
 
 namespace ASPNetUserService.API.Controllers
 {
@@ -31,10 +31,11 @@ namespace ASPNetUserService.API.Controllers
                 return StatusCode(StatusCodes.Status409Conflict);
             }
 
-            user = new ApplicationUser {
+            user = new ApplicationUser
+            {
                 UserName = userRegistration.Email,
                 Email = userRegistration.Email,
-                Password = userRegistration.Password
+                Password = userRegistration.Password,
             };
             var result = await _applicationUsersRepository.CreateAsync(user);
             if (result == null)
