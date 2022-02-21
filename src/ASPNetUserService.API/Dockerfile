@@ -7,10 +7,12 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
 WORKDIR /src
-COPY ["ASPNetUserService.API/ASPNetUserService.API.csproj", "ASPNetUserService.API/"]
-RUN dotnet restore "ASPNetUserService.API/ASPNetUserService.API.csproj"
+COPY ["src/ASPNetUserService.API/ASPNetUserService.API.csproj", "src/ASPNetUserService.API/"]
+COPY ["src/ASPNetUserService.Infrastructure/ASPNetUserService.Infrastructure.csproj", "src/ASPNetUserService.Infrastructure/"]
+COPY ["src/ASPNetUserService.Domain/ASPNetUserService.Domain.csproj", "src/ASPNetUserService.Domain/"]
+RUN dotnet restore "src/ASPNetUserService.API/ASPNetUserService.API.csproj"
 COPY . .
-WORKDIR "/src/ASPNetUserService.API"
+WORKDIR "/src/src/ASPNetUserService.API"
 RUN dotnet build "ASPNetUserService.API.csproj" -c Release -o /app/build
 
 FROM build AS publish

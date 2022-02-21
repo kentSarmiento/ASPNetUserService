@@ -11,8 +11,8 @@ namespace ASPNetUserService.TestClient
 {
     public class Program
     {
-        private const string AuthServiceHost = "https://localhost:5001";
-        private const string TaskServiceHost = "https://localhost:6001";
+        private const string AuthServiceHost = "https://10.129.142.140:55002";
+        private const string TaskServiceHost = "https://10.129.142.140:55004";
 
         private const string DefaultLogin = "kentsarmiento@gmail.com";
         private const string DefaultPassword = "P@ssw0rd1234";
@@ -30,10 +30,16 @@ namespace ASPNetUserService.TestClient
 
         public static async Task Main(string[] args)
         {
-            using var client = new HttpClient();
-            Options option = Options.Default;
+            var httpClientHandler = new HttpClientHandler();
+            httpClientHandler.ServerCertificateCustomValidationCallback = (message, cert, chain, sslPolicyErrors) =>
+            {
+                return true;
+            };
+            using var client = new HttpClient(httpClientHandler);
 
+            Options option = Options.Default;
             Tokens? tokens = null;
+
             while (option != Options.Quit)
             {
                 Console.WriteLine("Choose operation:");
