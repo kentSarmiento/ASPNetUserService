@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace ASPNetTodoService.Specs
+namespace ASPNetUserService.Specs
 {
     public class TokenInfo
     {

@@ -1,4 +1,4 @@
-﻿namespace ASPNetTodoService.Specs
+﻿namespace ASPNetUserService.Specs
 {
     public class UserInfo
     {

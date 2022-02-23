@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Threading.Tasks;
-using ASPNetTodoService.Specs.Drivers;
+using ASPNetUserService.Specs.Drivers;
 using FluentAssertions;
 using TechTalk.SpecFlow;
 using TechTalk.SpecFlow.Assist;
 
-namespace ASPNetTodoService.Specs.Steps
+namespace ASPNetUserService.Specs.Steps
 {
     [Binding]
     public class GetMessageSteps

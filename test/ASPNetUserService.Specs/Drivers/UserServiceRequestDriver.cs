@@ -2,7 +2,7 @@
 using Newtonsoft.Json;
 using RestSharp;
 
-namespace ASPNetTodoService.Specs.Drivers
+namespace ASPNetUserService.Specs.Drivers
 {
     public class UserServiceRequestDriver
     {

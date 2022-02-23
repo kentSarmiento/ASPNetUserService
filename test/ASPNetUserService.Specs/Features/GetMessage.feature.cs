@@ -10,7 +10,7 @@
 // ------------------------------------------------------------------------------
 #region Designer generated code
 #pragma warning disable
-namespace ASPNetTodoService.Specs.Features
+namespace ASPNetUserService.Specs.Features
 {
     using TechTalk.SpecFlow;
     using System;

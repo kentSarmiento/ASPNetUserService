@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Hosting;
 using TechTalk.SpecFlow;
 
-namespace ASPNetTodoService.Specs.Hooks
+namespace ASPNetUserService.Specs.Hooks
 {
     [Binding]
     public sealed class Hooks
